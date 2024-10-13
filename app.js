@@ -4,22 +4,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.set( 'view engine','pug');//told the express that want to  compile dynamic template with pug engine
-app.set('views','views');//where to  find the template
 
-const adminData = require('./routes/admin');
-//console.log(adminData);
+app.set('view engine', 'ejs');
+app.set('views', 'views');
+
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-
 app.use((req, res, next) => {
-    res.status(404).render('404',{Pagetitle:'404'});
+  res.status(404).render('404', { pageTitle: 'Page Not Found' });
 });
 
 app.listen(3000);
