@@ -4,16 +4,21 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    editing: false
+    editing: false,
+    isAuthenticated: req.session.isLoggedIn
   });
 };
-
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(title, price, description, imageUrl,null,req.user._id);
+  const product = new Product({
+    title:title,
+     price:price,
+      description:description,
+       imageUrl:imageUrl,
+      userId:req.session.user});
   product
     .save()
     .then(result => {
@@ -25,6 +30,24 @@ exports.postAddProduct = (req, res, next) => {
       console.log(err);
     });
 };
+//***MONGODB post add product */
+// exports.postAddProduct = (req, res, next) => {
+//   const title = req.body.title;
+//   const imageUrl = req.body.imageUrl;
+//   const price = req.body.price;
+//   const description = req.body.description;
+//   const product = new Product(title, price, description, imageUrl,null,req.user._id);
+//   product
+//     .save()
+//     .then(result => {
+//       // console.log(result);
+//       console.log('Created Product');
+//       res.redirect('/admin/products');
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// };
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
@@ -32,7 +55,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId)
+  Product.findById(prodId)//findById is a method provided by mongoose
     // Product.findById(prodId)
     .then(product => {
       if (!product) {
@@ -42,7 +65,8 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
-        product: product
+        product: product,
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -54,16 +78,27 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+  //this while using mongoose
+  Product.findById(prodId).then(product=>{
 
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDesc,
-    updatedImageUrl,
-    prodId
-  );
-  product
-    .save()
+
+  product.title = updatedTitle;
+  product.price = updatedPrice;
+  product.description = updatedDesc;
+  product.imageUrl = updatedImageUrl;
+  product.save()  
+  })
+
+  //use  while using mongodb
+  // const product = new Product(
+  //   updatedTitle,
+  //   updatedPrice,
+  //   updatedDesc,
+  //   updatedImageUrl,
+  //   prodId
+  // );
+  // product
+  //   .save()
     .then(result => {
       console.log('UPDATED PRODUCT!');
       res.redirect('/admin/products');
@@ -72,12 +107,14 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    //.populate('userId')//populate is a method provided by mongoose
     .then(products => {
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
-        path: '/admin/products'
+        path: '/admin/products',
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -85,7 +122,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
+  //Product.deleteById(prodId) use while using mongodb
+  Product.findByIdAndDelete(prodId)//findByIdAndDelete is a method provided by mongoose
     .then(() => {
       console.log('DESTROYED PRODUCT');
       res.redirect('/admin/products');

@@ -10,10 +10,7 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-main {
-  padding: 1rem;
-  margin: auto;
-}
+
 
 form {
   display: inline;
@@ -32,17 +29,31 @@ form {
 }
 
 .main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 3.5rem;
+  height: 4rem;
   background-color: #00695c;
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
+  z-index: 1000; /* Ensures it's above other elements */
 }
+
+main {
+  padding: 1rem;
+  margin: auto;
+  margin-top: 3.5rem; /* Same as the height of the header */
+}
+
 
 .main-header__nav {
   height: 100%;
-  display: none;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  height: 100%;
   align-items: center;
 }
 
@@ -52,7 +63,10 @@ form {
   padding: 0;
   display: flex;
 }
-
+.main-header_link{
+  margin: 0 1rem;
+  padding: 0;
+}
 .main-header__item {
   margin: 0 1rem;
   padding: 0;
