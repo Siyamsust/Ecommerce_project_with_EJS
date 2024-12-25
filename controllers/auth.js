@@ -13,11 +13,35 @@ exports.postLogin = (req, res, next) => {
     .then(user => {
       req.session.isLoggedIn = true;
       req.session.user = user;
-      res.redirect('/');
+    //console.log((req.session.user._id).toString());
+    req.session.save(err => {res.redirect('/');});
+      
     })
     .catch(err => console.log(err));
 };
-
+exports.getSignup = (req, res, next) => {};
+exports.postSignup = (req, res, next) => {
+  const email =req.body.email;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+  const phone =req.body.phone;
+  User.findOne({email:email})
+  .then(userDoc=>{
+    if(userDoc){
+      return res.redirect('/signup');
+    }
+    const user =new User({
+      
+      email:email,
+      password:password,
+      phone:phone,
+      cart:{items:[]}
+    })
+    return user.save();
+  }).then(result=>{
+    res.redirect('/login');
+  })
+};
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
     console.log(err);

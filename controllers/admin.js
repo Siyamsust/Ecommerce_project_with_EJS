@@ -8,17 +8,19 @@ exports.getAddProduct = (req, res, next) => {
     isAuthenticated: req.session.isLoggedIn
   });
 };
+
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
   const product = new Product({
-    title:title,
-     price:price,
-      description:description,
-       imageUrl:imageUrl,
-      userId:req.session.user});
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+    userId: req.user
+  });
   product
     .save()
     .then(result => {
@@ -56,7 +58,7 @@ exports.getEditProduct = (req, res, next) => {
   }
   const prodId = req.params.productId;
   Product.findById(prodId)//findById is a method provided by mongoose
-    // Product.findById(prodId)
+  // Product.findById(prodId)
     .then(product => {
       if (!product) {
         return res.redirect('/');
@@ -78,18 +80,16 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  //this while using mongoose
-  Product.findById(prodId).then(product=>{
-
-
-  product.title = updatedTitle;
-  product.price = updatedPrice;
-  product.description = updatedDesc;
-  product.imageUrl = updatedImageUrl;
-  product.save()  
-  })
-
-  //use  while using mongodb
+//this while using mongoose
+  Product.findById(prodId)
+    .then(product => {
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDesc;
+      product.imageUrl = updatedImageUrl;
+      return product.save();
+    })
+      //use  while using mongodb
   // const product = new Product(
   //   updatedTitle,
   //   updatedPrice,
@@ -108,8 +108,10 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
-    //.populate('userId')//populate is a method provided by mongoose
+    // .select('title price -_id')
+    // .populate('userId', 'name')
     .then(products => {
+      console.log(products);
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
