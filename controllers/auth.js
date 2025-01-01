@@ -9,6 +9,7 @@ const client = sibApiV3Sdk.ApiClient.instance;
 const apiKey = client.authentications['api-key'];
 apiKey.apiKey = process.env.API_KEY;
 const transEmail = new sibApiV3Sdk.TransactionalEmailsApi();
+const {validationResult}=require('express-validator');
 const sender ={
   name:'Siyam',
   email:'ahamedsiyam43@gmail.com'
@@ -49,6 +50,7 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  //const errors=validationResult(req);
   console.log(password);
   User.findOne({ email: email })
     .then(user => {
@@ -87,6 +89,15 @@ exports.postSignup = (req, res, next) => {
   const phone = req.body.phone;
   console.log(password);
   const confirmPassword = req.body.confirmPassword;
+  const errors=validationResult(req);
+  if(!errors.isEmpty()){
+    return res.status(422).render('auth/signup', {
+    path: '/signup',
+    pageTitle: 'Signup',
+    isAuthenticated: false,
+    errorMessage: errors.array()[0].msg
+  });
+  }
   User.findOne({ 
       email: email
         
