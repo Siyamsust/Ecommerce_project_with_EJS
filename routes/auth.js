@@ -47,7 +47,7 @@ router.post(
       .normalizeEmail(),
     body(
       'password',
-      'Please enter a password with only numbers and text and at least 5 characters.'
+      ' password is too short .'
     )
       .isLength({ min: 5 })
       .isAlphanumeric()
@@ -59,7 +59,13 @@ router.post(
           throw new Error('Passwords have to match!');
         }
         return true;
-      })
+      }),
+      body('phone')
+      .isLength({ min: 11, max: 11 })
+      .withMessage('Phone number must be exactly 11 digits.')
+      .matches(/^[0-9]+$/)
+      .withMessage('Phone number must contain only numbers.')
+
   ],
   authController.postSignup
 );

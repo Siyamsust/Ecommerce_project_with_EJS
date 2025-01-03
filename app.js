@@ -30,7 +30,7 @@ const fileStorage = multer.diskStorage({
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
+    cb(null, new Date().toISOString().replace(/:/g,'-') + '-' + file.originalname);
   }
 });
 const fileFilter=(req,file,cb)=>{
@@ -52,9 +52,10 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(multer({dest:'images'}).single('image'));
 app.use(multer({ storage: fileStorage ,fileFilter: fileFilter }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'images')));
+app.use('/images',express.static(path.join(__dirname, 'images')));
 app.use(
   session({
     secret: 'my secret',
@@ -86,14 +87,18 @@ app.use((req, res, next) => {
 
 });
 
+
+
 app.use(authRoutes);
 
 
-
-
 app.use('/admin', adminRoutes);
+
 app.use(shopRoutes);
+//app.get('/500', errorController.get500);
 app.use(errorController.get404);
+
+
 // mongoConnect(() => {
 //   app.listen(3000);
 // });

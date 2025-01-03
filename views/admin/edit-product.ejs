@@ -34,7 +34,8 @@
                 <input 
                     type="file" 
                     name="image" 
-                    id="image" >
+                    id="image" 
+                    value="<% if (editing || hasError) { %><%= product.imageUrl %><% } %>">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

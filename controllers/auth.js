@@ -27,7 +27,13 @@ exports.getLogin = (req, res, next) => {
     path: '/login',
     pageTitle: 'Login',
     isAuthenticated: false,
-    errorMessage: message
+    errorMessage: message,
+    oldInput:{
+      email:'',
+      password:''
+
+    },
+    validationErrors: []
   });
 };
 
@@ -43,27 +49,62 @@ exports.getSignup = (req, res, next) => {
     path: '/signup',
     pageTitle: 'Signup',
     isAuthenticated: false,
-    errorMessage: message
+    errorMessage: message,
+    oldInput:{
+      email:'',
+      password:'',
+      phone:'',
+      confirmPassword:''
+    },
+    validationErrors: []
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  //const errors=validationResult(req);
+  const errors=validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password
+      },
+      validationErrors: errors.array()
+    });
+  }
   console.log(password);
   User.findOne({ email: email })
     .then(user => {
-      if(!user){
-        req.flash('error','Invalid email or password');
-        return res.redirect('/login');
+      if (!user) {
+        return res.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Invalid email or password.',
+          oldInput: {
+            email: email,
+            password: password
+          },
+          validationErrors: []
+        });
       }
       //console.log(user.password);
       bcrypt.compare(password, user.password).
       then(doMatch=>{
         if(!doMatch){
-          req.flash('error','Invalid email or password');
-          return res.redirect('/login');
+          return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: 'Invalid email or password.',
+            oldInput: {
+              email: email,
+              password: password
+            },
+            validationErrors: []
+          });
         }
         req.session.isLoggedIn = true;
         req.session.user = user;
@@ -80,7 +121,9 @@ exports.postLogin = (req, res, next) => {
     });
       
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -88,26 +131,34 @@ exports.postSignup = (req, res, next) => {
   const password = req.body.password;
   const phone = req.body.phone;
   console.log(password);
-  const confirmPassword = req.body.confirmPassword;
+  //const confirmPassword = req.body.confirmPassword;
   const errors=validationResult(req);
   if(!errors.isEmpty()){
     return res.status(422).render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
     isAuthenticated: false,
-    errorMessage: errors.array()[0].msg
+    errorMessage: errors.array()[0].msg,
+    oldInput: {
+      email: email,
+      password: password,
+      phone: phone,
+      confirmPassword: req.body.confirmPassword
+    },
+    validationErrors: errors.array()
   });
   }
-  User.findOne({ 
-      email: email
+//   User.findOne({ 
+//       email: email
         
-})
-    .then(userDoc => {
-      if (userDoc) {
-         req.flash('serror','E-Mail or Phone already exists.Please pick a different one');         
-        return res.redirect('/signup');
-      }
-      return bcrypt
+// })
+    // .then(userDoc => {
+    //   if (userDoc) {
+    //      req.flash('serror','E-Mail or Phone already exists.Please pick a different one');         
+    //     return res.redirect('/signup');
+    //   }
+    //   return 
+      bcrypt
         .hash(password, 12).then(hashedPassword => {
           const user = new User({
           email: email,
@@ -130,11 +181,7 @@ exports.postSignup = (req, res, next) => {
         htmlContent: '<p><strong>You have successfully signed up! Welcome to our platform. Enjoy Shopping</strong></p>'
       });
       
-    }).then(err=>{
-      console.log(err);
-     
-    });
-  })
+    })
     .catch(err => {
       console.log(err);
     });
