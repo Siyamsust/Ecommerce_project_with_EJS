@@ -214,7 +214,18 @@ form {
   border-radius: 3px;
   cursor: pointer;
 }
-
+.my-wn{
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  font: inherit;
+  display: block;
+  width: 9.5rem;
+  text-align: center;
+  height: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 3px;
+}
 .btn:hover,
 .btn:active {
   background-color: #00695c;
@@ -246,6 +257,18 @@ form {
   border-color: red;
   background: rgb(255, 176, 176);
   color: red;
+}
+.user-mess{
+  padding: .5rem;
+  text-align: center;
+  border-radius: 2px;
+
+}
+
+.user-message--addedtoCart{
+  border-color: green;
+  background: rgb(0, 87, 0);
+  color: rgb(231, 237, 231);
 }
 
 @media (min-width: 768px) {

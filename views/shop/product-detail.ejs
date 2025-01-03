@@ -11,6 +11,9 @@
             </div>
             <h2>৳<%= new Intl.NumberFormat('en-US').format(product.price) %></h2>
             <p><%= product.description %></p>
+            <% if (addedtoCart && addedtoCart.toString() === product._id.toString()) { %>
+                <div class="my-wn user-message--addedtoCart">Added to Cart</div>
+              <% } %>
             <% if (isAuthenticated) { %>
                 <%- include('../includes/add-to-cart.ejs', {product: product}) %>
             <% } %>

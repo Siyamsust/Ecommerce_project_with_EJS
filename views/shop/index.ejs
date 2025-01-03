@@ -20,6 +20,10 @@
                         <div class="card__content">
                             <h2 class="product__price">৳<%= new Intl.NumberFormat('en-US').format(product.price) %></h2>
                             <p class="product__description"><%= product.description %></p>
+                            <% if (addedtoCart && addedtoCart.toString() === product._id.toString()) { %>
+                                <div class="card__content centered user-message--addedtoCart">Added to Cart</div>
+                              <% } %>
+                          
                         </div>
                         <div class="card__actions">
                             <a href="/products/<%= product._id %>" class="btn">Details</a>

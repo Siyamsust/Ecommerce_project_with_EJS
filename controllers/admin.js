@@ -12,6 +12,7 @@ exports.getAddProduct = (req, res, next) => {
     editing: false,
     hasError: false,
     errorMessage: null,
+    addedtoCart:null,
     validationErrors: []
   });
 };
@@ -33,6 +34,7 @@ exports.postAddProduct = (req, res, next) => {
         description: description
       },
       errorMessage: 'Attached file is not an image.',
+      addedtoCart:null,
       validationErrors: []
     });
   }
@@ -52,6 +54,7 @@ exports.postAddProduct = (req, res, next) => {
         description: description,
       },
       errorMessage: errors.array()[0].msg,
+      addedtoCart:null,
     
       validationErrors: errors.array()
     });
@@ -112,6 +115,7 @@ exports.getEditProduct = (req, res, next) => {
         product: product,
         hasError: false,
         errorMessage: null,
+        addedtoCart:null,
         validationErrors: []
       });
     })
@@ -145,6 +149,7 @@ exports.postEditProduct = (req, res, next) => {
         _id: prodId
       },
       errorMessage: errors.array()[0].msg,
+      addedtoCart:null,
     
       validationErrors: errors.array()
     });
@@ -177,11 +182,14 @@ exports.getProducts = (req, res, next) => {
     // .select('title price -_id')
     // .populate('userId', 'name')
     .then(products => {
-      console.log(products);
+      //console.log(products);
+      const addedtoCart=req.session.addedtoCart||null;
+      req.session.addedtoCart=null;
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
-        path: '/admin/products'
+        path: '/admin/products',
+        addedtoCart:addedtoCart,
       });
     })
     .catch(err => {

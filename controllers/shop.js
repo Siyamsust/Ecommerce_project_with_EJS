@@ -7,11 +7,14 @@ const PDFDocument =require('pdfkit');
 exports.getProducts = (req, res, next) => {
   Product.find()//used for mongoose for fetching all products but can use fetch all for mongodb which I need to  implement .cursor() for fetching a item at a time
     .then(products => {
+      const addedtoCart = req.session.addedtoCart || null;
+      req.session.addedtoCart = null; 
       console.log(products);
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
+        addedtoCart: addedtoCart,
         //isAuthenticated: req.session.isLoggedIn,
        // csrfToken:req.csrfToken()
       });
@@ -25,12 +28,13 @@ exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then(product => {
+      const addedtoCart = req.session.addedtoCart || null;
+      req.session.addedtoCart = null; 
       res.render('shop/product-detail', {
         product: product,
         pageTitle: product.title,
         path: '/products',
-        //isAuthenticated: req.session.isLoggedIn,
-        // csrfToken:req.csrfToken()
+        addedtoCart: addedtoCart,
       });
     })
     .catch(err => console.log(err));
@@ -39,18 +43,20 @@ exports.getProduct = (req, res, next) => {
 exports.getIndex = (req, res, next) => {
   Product.find()
     .then(products => {
+      const addedtoCart = req.session.addedtoCart || null;
+      req.session.addedtoCart = null; 
       res.render('shop/index', {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-     //  isAuthenticated: req.session.isLoggedIn,
-        // csrfToken:req.csrfToken()
+        addedtoCart: addedtoCart,
       });
     })
     .catch(err => {
       console.log(err);
     });
 };
+
 
 exports.getCart = (req, res, next) => {
   req.user
@@ -61,6 +67,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: products,
+        addedtoCart:'Added to Cart',
         //isAuthenticated: req.session.isLoggedIn,
         // csrfToken:req.csrfToken()
       });
@@ -77,6 +84,7 @@ exports.postCart = (req, res, next) => {
     })
     .then(result => {
       console.log(result);
+      req.session.addedtoCart=prodId;
       const referer=req.get('Referer');
       res.redirect(referer||'/cart');
     }).catch(err => {
