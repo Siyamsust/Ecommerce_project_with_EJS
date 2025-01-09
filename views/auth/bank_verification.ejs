@@ -1,0 +1,54 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+   <%- include('../includes/navigation.ejs') %>
+
+    <main>
+        <% if (errorMessage) { %>
+            <div class="user-message user-message--error"><%= errorMessage %></div>
+        <% } %>
+        <form class="login-form" action="/bank_verification" method="POST">
+            <div class="form-control">
+                <label for="bank">E-Mail</label>
+                <input 
+                    type="bank" 
+                    name="bank" 
+                    id="bank" 
+                    value="<%= oldInput.bank %>">
+            </div>
+            <div class="form-control">
+                <label for="cbc">CBC</label>
+                <input 
+                    type="cbc" 
+                    name="cbc" 
+                    id="cbc" 
+                    value="<%= oldInput.cbc %>">
+            </div>
+            <div class="form-control">
+                <label for="phone">Secret Phone</label>
+                <input 
+                    class="<%= validationErrors.find(e => e.param === 'password') ? 'invalid' : '' %>"
+                    type="phone" 
+                    name="phone" 
+                    id="phone" 
+                    value="<%= oldInput.phone %>">
+            </div>
+             
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+           
+        </form>
+         <%if(forfirst){%>
+            <div class="centered">
+                <button class="btn centered" type="submit">verify</button>
+            </div>
+          <% } else { %>
+            <div class="centered">
+                <button class="btn centered" type="submit">pay</button>
+            </div>
+            <% } %>
+    </main>
+<%- include('../includes/end.ejs') %>

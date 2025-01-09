@@ -1,8 +1,11 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const User=require('../models/user');
 const fs=require('fs');
+const bcrypt=require('bcryptjs');
 const path=require('path');
 const PDFDocument =require('pdfkit');
+const stripe = require('stripe')('sk_test_51QYwWhBChbQGBbLewdCMlxNXl4kvSpsWdTjF4roHmTfqng0HbSrHmFxxPJqCTKrNGxTijEeXyUsH06qkPNISPWPH00s0s6aKph');
 //const fileHelper=require('../util/file');
 exports.getProducts = (req, res, next) => {
   Product.find()//used for mongoose for fetching all products but can use fetch all for mongodb which I need to  implement .cursor() for fetching a item at a time
@@ -26,18 +29,29 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
+  let addedtoCart = req.session.addedtoCart;
+  
+  // Clear the session value immediately
+  req.session.addedtoCart = null;
+  
   Product.findById(prodId)
     .then(product => {
-      const addedtoCart = req.session.addedtoCart || null;
-      req.session.addedtoCart = null; 
-      res.render('shop/product-detail', {
-        product: product,
-        pageTitle: product.title,
-        path: '/products',
-        addedtoCart: addedtoCart,
+      return req.session.save(err => {
+        if (err) {
+          console.log('Session save error:', err);
+        }
+        res.render('shop/product-detail', {
+          product: product,
+          pageTitle: product.title,
+          path: '/products',
+          addedtoCart: addedtoCart
+        });
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.redirect('/500');
+    });
 };
 
 exports.getIndex = (req, res, next) => {
@@ -76,21 +90,30 @@ exports.getCart = (req, res, next) => {
 };
 
 exports.postCart = (req, res, next) => {
-  const prodId = req.body.productId;
-  Product.findById(prodId)
-    .then(product => {
-      return req.user.addToCart(product);
-        //res.redirect('/cart');
+    const prodId = req.body.productId;
+    const quantity = parseInt(req.body.quantity) || 1;
+    
+    Product.findById(prodId)
+        .then(product => {
+            return req.user.addToCart(product, quantity);
+        })
+        .then(result => {
+          
+          req.session.addedtoCart = prodId;
+          return req.session.save(err => {
+            if (err) {
+              console.log('Session save error:', err);
+            }
+            console.log('Added to cart:', prodId);
+            const referer = req.get('Referer');
+            res.redirect(referer || '/cart');
+          });
+     
     })
-    .then(result => {
-      console.log(result);
-      req.session.addedtoCart=prodId;
-      const referer=req.get('Referer');
-      res.redirect(referer||'/cart');
-    }).catch(err => {
-      console.log(err);
-      res.json({message:'Error'});
-    });;
+    .catch(err => {
+      console.log('Add to cart error:', err);
+      res.redirect('/500');
+    });
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
@@ -102,29 +125,121 @@ exports.postCartDeleteProduct = (req, res, next) => {
     })
     .catch(err => console.log(err));
 };
+exports.getCheckout = (req, res, next) => {
+  req.user
+    .populate('cart.items.productId')
+    .then(user => {
+      const products = user.cart.items;
+      console.log("all prod");
+      console.log(products);
+      let total=0;
+      products.forEach(p=>{
+        total+=p.quantity*p.productId.price;
+      });
+      //const userId=req.session.user._id
+       const bankDetails =user.bankDetails;
+       console.log(bankDetails);
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products: products,
+        totalSum:total,
+        bankDetails:bankDetails,
+        // accountName:User.name,
+        // acountNumber:User.bankDetails.accountNumber,
+        // cbc:User.bankDetails.cbc
+
+        //addedtoCart:'Added to Cart',
+        //isAuthenticated: req.session.isLoggedIn,
+        // csrfToken:req.csrfToken()
+      })
+      // User.findById(userId).select('bankDetails').then(res.render('shop/checkout', {
+      //   path: '/checkout',
+      //   pageTitle: 'Checkout',
+      //   products: products,
+      //   totalSum:total,
+      //   accountName:User.name,
+      //   acountNumber:User.bankDetails.accountNumber,
+      //   cbc:User.bankDetails.cbc
+
+        //addedtoCart:'Added to Cart',
+        //isAuthenticated: req.session.isLoggedIn,
+        // csrfToken:req.csrfToken()
+      })
+    .catch(err => console.log(err));
+};
 
 exports.postOrder = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
-    
     .then(user => {
-      const products = user.cart.items.map(i => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
-      });
-      const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user
-        },
-        products: products
-      });
-      return order.save();
-    })
-    .then(result => {
-      return req.user.clearCart();
-    })
-    .then(() => {
-      res.redirect('/orders');
+      console.log(user);
+      const secretkey = req.body.secretKey;
+      console.log(secretkey);
+      
+      bcrypt.compare(secretkey, user.bankDetails.secretKey)
+        .then(doMatch => {
+          if (doMatch) {
+            const products = user.cart.items.map(i => {
+              return { quantity: i.quantity, product: { ...i.productId._doc } };
+            });
+
+            const order = new Order({
+              user: {
+                email: req.user.email,
+                userId: req.user,
+              },
+              products: products,
+            });
+
+            console.log(products);
+
+            // Create a map to track owners' money updates
+            const ownerUpdates = [];
+            let money=0;
+            // Loop through each product in the cart
+            products.forEach(prod => {
+              const productOwnerId = prod.product.userId;
+
+              let moneyToAdd = prod.quantity * prod.product.price;
+                   money+=moneyToAdd;
+              // Find the product owner and update their money
+              ownerUpdates.push(
+                User.findById(productOwnerId)
+                  .then(owner => {
+                    if (owner) {
+                      if (owner.money === undefined) {
+                        owner.money = 0; // Initialize money if it's undefined
+                      }
+
+                      owner.money += moneyToAdd; // Add the calculated money to the owner's balance
+                      console.log(`Updated owner ${owner.email}'s money: ${owner.money}`);
+                      return owner.save(); // Save the updated owner
+                    } else {
+                      throw new Error("Product owner not found");
+                    }
+                  })
+              );
+            });
+
+            // After all the product owners are updated, save the order and user cart clearing
+            Promise.all(ownerUpdates)
+              .then(() => {
+                return order.save();  // Save the order after updating the product owners
+              })
+              .then(() => {
+                return req.user.clearCart(); // Clear the user's cart
+              })
+              .then(() => {
+                res.redirect('/orders');
+              })
+              .catch(err => {
+                console.error(err);
+                res.redirect('/500'); // Or handle the error appropriately
+              });
+          }
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };
@@ -142,6 +257,7 @@ exports.getOrders = (req, res, next) => {
     })
     .catch(err => console.log(err));
 };
+
 exports.getInvoice=(req,res,next)=>{
 
 

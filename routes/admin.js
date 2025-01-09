@@ -40,6 +40,9 @@ router.post(
   isAuth,
   adminController.postEditProduct
 );
+router.get('/profile',isAuth,adminController.getProfile);
+//router.post('/profile',isAuth,adminController.postProfile);
+router.post('/profile', isAuth,adminController.postBank);
 
 router.post('/delete-product', isAuth, adminController.postDeleteProduct);
 

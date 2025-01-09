@@ -1,5 +1,51 @@
-<form action="/cart" method="post">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <button class="btn" type="submit">Add to Cart</button>
-    <input type="hidden" name="productId" value="<%= product._id %>">
-</form>
+<link rel="stylesheet" href="/css/cart.css">
+
+<div class="cart-container" style="margin: 0.5rem 0">
+    <form action="/cart" method="POST" class="add-to-cart-form" id="form-<%= product._id %>">
+        <div class="quantity-selector">
+            <label for="quantity-<%= product._id %>">Quantity:</label>
+            <div class="quantity-controls">
+                <button type="button" class="qty-btn" onclick="decrementQuantity('<%= product._id %>')">-</button>
+                <input type="number" 
+                       id="quantity-<%= product._id %>" 
+                       name="quantity" 
+                       value="1" 
+                       min="1" 
+                       max="10"
+                       onchange="validateQuantity(this)">
+                <button type="button" class="qty-btn" onclick="incrementQuantity('<%= product._id %>')">+</button>
+            </div>
+        </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="productId" value="<%= product._id %>">
+        <button class="btn" type="submit">
+            <i class="fas fa-shopping-cart"></i>
+            Add to Cart
+        </button>
+    </form>
+</div>
+
+<script>
+function validateQuantity(input) {
+    let value = parseInt(input.value);
+    if (value < 1) input.value = 1;
+    if (value > 10) input.value = 10;
+    if (isNaN(value)) input.value = 1;
+}
+
+function incrementQuantity(productId) {
+    const input = document.getElementById('quantity-' + productId);
+    const currentValue = parseInt(input.value);
+    if (currentValue < 10) {
+        input.value = currentValue + 1;
+    }
+}
+
+function decrementQuantity(productId) {
+    const input = document.getElementById('quantity-' + productId);
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+        input.value = currentValue - 1;
+    }
+}
+</script>

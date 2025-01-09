@@ -6,8 +6,13 @@
 
 body {
   padding: 0;
+  padding-top: 70px;
   margin: 0;
+  display: flex;
+    justify-content: center;
+    align-items: center;
   font-family: 'Open Sans', sans-serif;
+  background-color: #d2d4d5df;
 }
 
 main {
@@ -32,10 +37,14 @@ form {
 }
 
 .main-header {
+  position: fixed;
+  top: 0;
+  left:0;
   width: 100%;
-  height: 3.5rem;
-  background-color: #00695c;
+  height: 4.1rem;
+  background-color: #1d5287;
   padding: 0 1.5rem;
+  z-index:1000;
   display: flex;
   align-items: center;
 }
@@ -126,7 +135,7 @@ form {
 .mobile-nav__item a.active,
 .mobile-nav__item button:hover,
 .mobile-nav__item button:active {
-  background: #00695c;
+  background: #1d5287;
   color: white;
   border-radius: 3px;
 }
@@ -171,6 +180,7 @@ form {
 
 .card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  border-radius: 10px;
 }
 
 .card__header,
@@ -204,37 +214,51 @@ form {
 }
 
 .btn {
-  display: inline-block;
-  padding: 0.25rem 1rem;
-  text-decoration: none;
-  font: inherit;
-  border: 1px solid #00695c;
-  color: #00695c;
-  background: white;
-  border-radius: 3px;
+  background-color: #27ae60;
+  color: #ffffff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
 }
-.my-wn{
-  padding: 0.25rem 1rem;
-  text-decoration: none;
-  font: inherit;
-  display: block;
-  width: 9.5rem;
-  text-align: center;
-  height: 30px;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 3px;
+
+.btn:hover,.btn:active {
+  background-color: #27ae60;
 }
-.btn:hover,
-.btn:active {
-  background-color: #00695c;
-  color: white;
+.floating-message {
+  position: fixed;
+  top: 20px; /* Adjust the vertical position as needed */
+  right: 47%; /* Adjust the horizontal position as needed */
+  background-color: #27ae60; /* Green background for success */
+  color: white; /* White text */
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure it stays above other elements */
+  animation: fadeOut 3s forwards; /* Add fade-out animation */
 }
+
+/* Fade-out animation */
+@keyframes fadeOut {
+  0% {
+      opacity: 1;
+  }
+  80% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+      transform: translateY(-10px); /* Slight upward movement */
+  }
+}
+
 
 .btn.danger {
   color: red;
   border-color: red;
+  background-color: white;
 }
 
 .btn.danger:hover,
@@ -266,8 +290,8 @@ form {
 }
 
 .user-message--addedtoCart{
-  border-color: green;
-  background: rgb(0, 87, 0);
+  border-color: #27ae60;
+  background: #27ae60(0, 87, 0);
   color: rgb(231, 237, 231);
 }
 

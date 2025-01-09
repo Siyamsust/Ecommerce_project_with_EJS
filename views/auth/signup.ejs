@@ -12,6 +12,14 @@
         <% } %>
         <form class="login-form" action="/signup" method="POST" novalidate>
             <div class="form-control">
+                <label for="name">Name</label>
+                <input 
+                    type="text"
+                    name="name" 
+                    id="name" 
+                    value="<%= oldInput.name %>">
+            </div>
+            <div class="form-control">
                 <label for="email">E-Mail</label>
                 <input 
                     class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid' : '' %>"
@@ -20,6 +28,7 @@
                     id="email" 
                     value="<%= oldInput.email %>">
             </div>
+
             <div class="form-control">
                 <label for="phone">phone</label>
                 <input 
@@ -48,7 +57,8 @@
                     value="<%= oldInput.confirmPassword %>">
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn" type="submit">Signup</button>
+            <div class="centered"><button class="btn centered" type="submit">Signup</button></div>
+            
         </form>
     </main>
 <%- include('../includes/end.ejs') %>

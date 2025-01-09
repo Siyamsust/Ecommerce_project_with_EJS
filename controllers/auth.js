@@ -110,6 +110,7 @@ exports.postLogin = (req, res, next) => {
         req.session.user = user;
        return req.session.save(err => {
           console.log(err);
+
           res.redirect('/');
         });
 
@@ -130,6 +131,7 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const phone = req.body.phone;
+  const name =req.body.name;
   console.log(password);
   //const confirmPassword = req.body.confirmPassword;
   const errors=validationResult(req);
@@ -140,6 +142,7 @@ exports.postSignup = (req, res, next) => {
     isAuthenticated: false,
     errorMessage: errors.array()[0].msg,
     oldInput: {
+      name:name,
       email: email,
       password: password,
       phone: phone,
@@ -161,10 +164,12 @@ exports.postSignup = (req, res, next) => {
       bcrypt
         .hash(password, 12).then(hashedPassword => {
           const user = new User({
+          name: name,  
           email: email,
           password: hashedPassword,
           phone: phone,
           cart: { items: [] }
+          
         });
         return user.save();
       })
@@ -215,6 +220,7 @@ exports.postReset =(req,res,next)=>{
       return res.redirect('/reset');
     }
     const token = buffer.toString('hex');
+    console.log(token);
     User.findOne({email:req.body.email}).then(user=>{
       if(!user){
         req.flash('error','No account with that email found');

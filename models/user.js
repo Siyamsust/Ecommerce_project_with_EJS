@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+  name:{
+   type:String,
+   required:false,
+  },
   email: {
     type: String,
     required: true
@@ -11,10 +15,15 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  imageUrl: {
+    type: String,
+  
+  },
   phone:{
     type:String,
     required:true
   },
+  money: Number,
   resetToken: String,
   resetTokenExpiration: Date,
   cart: {
@@ -28,28 +37,50 @@ const userSchema = new Schema({
         quantity: { type: Number, required: true }
       }
     ]
+  },
+  bankDetails:{
+    address:{
+      type: String
+    },
+    addedmoney:{
+    type:Number
+    },
+    accountNumber:{
+    type: String,
+           
+    },
+    cbc:{
+      type:Number,
+      
+    },
+    secretKey:{
+      type:String,
+     
+    }
   }
 });
 
-userSchema.methods.addToCart = function(product) {
+userSchema.methods.addToCart = function(product, quantity) {
   const cartProductIndex = this.cart.items.findIndex(cp => {
     return cp.productId.toString() === product._id.toString();
   });
-  let newQuantity = 1;
-  const updatedCartItems = [...this.cart.items];
 
+  const updatedCartItems = [...this.cart.items];
+  
   if (cartProductIndex >= 0) {
-    newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+    const newQuantity = this.cart.items[cartProductIndex].quantity + quantity;
     updatedCartItems[cartProductIndex].quantity = newQuantity;
   } else {
     updatedCartItems.push({
       productId: product._id,
-      quantity: newQuantity
+      quantity: quantity
     });
   }
+
   const updatedCart = {
     items: updatedCartItems
   };
+  
   this.cart = updatedCart;
   return this.save();
 };

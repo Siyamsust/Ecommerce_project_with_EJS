@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Your Order</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #007bff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .cart__item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .cart__item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart__item-img img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .cart__item-info h1 {
+            font-size: 1.1em;
+            margin: 0;
+            color: #333;
+        }
+
+        .cart__item-info h2 {
+            font-size: 0.9em;
+            margin: 5px 0 0;
+            color: #555;
+        }
+
+        .profile-details {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-item {
+            margin-bottom: 15px;
+        }
+
+        .profile-item label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .profile-item p {
+            margin: 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .total-section {
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .total-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .total-section p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .total-section hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .secret-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            text-align: center;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div class="header">
+                <h2>Review your order</h2>
+            </div>
+            
+            <div style="display: flex; gap: 2rem; padding: 2rem;">
+                <!-- Left side: Order items -->
+                <div style="flex: 2;">
+                    <ul class="cart__item-list">
+                        <% products.forEach(p => { %>
+                            <li class="cart__item">
+                                <div class="cart__item-img">
+                                    <img src="/<%= p.productId.imageUrl %>" alt="<%= p.productId.title %>">
+                                </div>
+                                <div class="cart__item-info">
+                                    <h1><%= p.productId.title %></h1>
+                                    <h2>Quantity: <%= p.quantity %></h2>
+                                </div>
+                            </li>
+                        <% }) %>
+                    </ul>
+
+                    <!-- Bank Details Section -->
+                    <div class="profile-details">
+                        <h3>Bank Details</h3>
+                        <div class="profile-item">
+                            <label for="address">Address</label>
+                            <p><%= bankDetails.address %></p>
+                        </div>
+                        <div class="profile-item">
+                            <label for="accountNumber">Account Number</label>
+                            <p><%= bankDetails.accountNumber %></p>
+                        </div>
+                        <div class="profile-item">
+                            <label for="cbc">CBC</label>
+                            <p><%= bankDetails.cbc %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side: Order Summary -->
+                <div style="flex: 1;">
+                    <div class="total-section">
+                        <h2>Order Summary</h2>
+                        <div style="margin: 1rem 0;">
+                            <p>Items: ৳ <%= new Intl.NumberFormat('en-US').format(totalSum) %></p>
+                            <p>Shipping & handling: ৳ 0.00</p>
+                            <hr>
+                            <p><strong>Total: ৳ <%= new Intl.NumberFormat('en-US').format(totalSum) %></strong></p>
+                        </div>
+
+                        <form action="/create-order" method="POST">
+                            <div class="profile-item">
+                                <label for="secretKey">Secret Key</label>
+                                <input 
+                                    type="password" 
+                                    id="secretKey" 
+                                    name="secretKey" 
+                                    class="secret-input" 
+                                    required
+                                    placeholder="Enter your secret key">
+                            </div>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn" type="submit" id="checkout-button">Place Order</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

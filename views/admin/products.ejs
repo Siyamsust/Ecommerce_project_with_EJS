@@ -6,6 +6,10 @@
         <%- include('../includes/navigation.ejs') %>
 
             <main>
+                <div class="money-earned">
+                    <h2>Total Money Earned</h2>
+                    <p class="total-amount">৳ <%= new Intl.NumberFormat('en-US').format(isNaN(user.money) ? 0 : user.money) %></p>
+                  </div>
                 <% if (prods.length > 0) { %>
                     <div class="grid">
                         <% for (let product of prods) { %>

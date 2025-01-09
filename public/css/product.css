@@ -1,6 +1,35 @@
+@media (max-width: 768px) {
+  .product-form {
+    width: 90%;
+  }
+
+  .card.product-item {
+    width: 100%;
+  }
+
+  .card__actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card__actions .btn,
+  .card__actions form {
+    width: 100%;
+  }
+
+  .card__image img {
+    height: 200px;
+  }
+}
+
 .product-form {
-    width: 20rem;
-    max-width: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    transition: box-shadow 0.3s ease;
+    background-color: #ffffff;
     margin: auto;
     display: block;
 }
@@ -24,4 +53,28 @@
 
 .product__description {
     text-align: center;
+}
+
+.money-earned {
+    text-align: center;
+    margin: 20px auto;
+    padding: 0px;
+    background-color: #f0f8ff;
+    color: #333333;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+}
+
+.money-earned h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #00695c;
+}
+
+.money-earned .total-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #00796b;
+    margin-top: 10px;
 }

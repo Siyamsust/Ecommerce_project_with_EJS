@@ -9,9 +9,10 @@ const csrf = require('csurf');
 const errorController = require('./controllers/error');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
-
 const User = require('./models/user');
 const flash = require('connect-flash');
+const shopController = require('./controllers/shop');
+const isAuth = require('./middleware/is-auth');
 //const mongoConnect = require('./util/database').mongoConnect;
  
 
@@ -70,7 +71,7 @@ app.use((req,res,next)=>{
   if(!req.session.user){
     return next();
   }
-  console.log(req.session.user._id);
+  //console.log(req.session.user._id);
   User.findById(req.session.user._id)
   
   .then(user=>{
@@ -80,14 +81,22 @@ app.use((req,res,next)=>{
   .catch(err=>console.log(err));
 })
 app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
+  res.locals.isAuthenticated = req.session.isLoggedIn; 
+ res.locals.csrfToken = req.csrfToken();
   next();
 
 
 });
 
 
+//app.post('/create-order', isAuth, shopController.postOrder);
+// app.use(csrfProtection);
+// app.use((req, res, next) => {
+ 
+//   next();
+
+
+// });
 
 app.use(authRoutes);
 

@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const fileHelper = require('../util/file');
+const User=require('../models/user');
 const { validationResult } = require('express-validator');
-
+const bcrypt=require('bcryptjs');
 const Product = require('../models/product');
 const { file } = require('pdfkit');
 
@@ -15,6 +16,68 @@ exports.getAddProduct = (req, res, next) => {
     addedtoCart:null,
     validationErrors: []
   });
+};
+exports.getProfile=(req,res,next)=>{
+  const useId=req.user._id;
+  console.log('something');
+  console.log('hi'+useId);  
+  User.findById(useId)
+  .then(res.render('admin/profile', {
+    pageTitle: 'User Profile',
+    path: '/profile',
+    user: req.user,
+    editing: false,
+    csrfToken: req.csrfToken(),
+    hasError: false,
+    errorMessage: null,
+    //addedtoCart:null,
+    //validationErrors: []
+  })).catch(err=>{
+    console.log(err);
+  });
+}
+exports.postBank=(req,res,next)=>{
+  const { address, accountNumber, cbc, secretKey } = req.body;
+  const image = req.file;
+  console.log('in Bank');
+  // You can add validation logic for the bank data here (optional)
+  bcrypt.hash(secretKey,12).then(hashKey=>{
+    User.findById(req.user._id)
+
+    .then(user => {
+      if(!image){
+        console.log(image);
+        //const imageUrl = image.path.replace(/\\\\/g, '\\');
+       // user.imageUrl=imageUrl;
+        user.bankDetails = {
+          address:address,
+          accountNumber:accountNumber,
+          cbc:cbc,
+          secretKey:hashKey
+        };
+         console.log(hashKey);
+        
+        return user.save();
+      }
+       console.log(image);
+      const imageUrl = image.path.replace(/\\\\/g, '\\');
+      user.imageUrl=imageUrl;
+      user.bankDetails = {
+        address:address,
+        accountNumber:accountNumber,
+        cbc:cbc,
+        secretKey:hashKey
+      };
+       console.log(hashKey);
+      
+      return user.save();
+    })
+  })
+  
+    .then(result => {
+      res.redirect('/');
+    })
+    .catch(err => console.log(err));
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -178,6 +241,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  const user=req.user;
   Product.find({ userId: req.user._id })
     // .select('title price -_id')
     // .populate('userId', 'name')
@@ -189,6 +253,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'Admin Products',
         path: '/admin/products',
+        user:user,
         addedtoCart:addedtoCart,
       });
     })

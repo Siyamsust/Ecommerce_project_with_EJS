@@ -29,12 +29,15 @@
         <ul class="main-header__item-list">
             <% if (!isAuthenticated) { %>
                 <li class="main-header__item">
-                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login</a>
+                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/login"> <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg" alt="Profile Icon" style="width: 20px; height: 20px; vertical-align: middle;"> Login</a>
                 </li>
                 <li class="main-header__item">
                     <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup">Signup</a>
                 </li>
             <% } else { %>
+                <li class="main-header__item">
+                    <a class="<%= path === '/profile' ? 'active' : '' %>" href="/admin/profile"> <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg" alt="Profile Icon" style="width: 25px; height: 30px; vertical-align: middle;">Profile </a>
+                </li>
                 <li class="main-header__item">
                     <form action="/logout" method="post">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">

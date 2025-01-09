@@ -1,0 +1,119 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/auth.css">
+<link rel="stylesheet" href="/css/profile.css"
+
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+  <main>
+    <div class="profile-details">
+     
+      <div class="profile-image">
+        <img src="<%= user.imageUrl ? '/' + user.imageUrl : 'https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg' %>" alt="Profile Image">
+
+      </div>
+   
+      <div class="profile-info">
+        <div class="profile-item">
+          <label for="name">Name</label>
+          <p><%= user.name %></p>
+        </div>
+
+        <div class="profile-item">
+          <label for="phone">Phone</label>
+          <p><%= user.phone %></p>
+        </div>
+
+        <div class="profile-item">
+          <label for="email">Email</label>
+          <p><%= user.email %></p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="centered">Bank Validation</h2>
+
+    <form action="/admin/profile" method="POST" enctype="multipart/form-data">
+        <div class="profile-item">
+          <label for="profileImage">Change Profile Image</label>
+          <input type="file" id="profileImage" name="image" accept="image/*">
+        </div>
+      
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="profile-detail">
+        <div class="form-control">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" value="<%= user.bankDetails.address %>">
+        </div>
+
+        <div class="form-control">
+          <label for="accountNumber">Account Number</label>
+          <input 
+            type="text" 
+            id="accountNumber" 
+            name="accountNumber" 
+            value="<%= user.bankDetails.accountNumber %>" 
+            placeholder="1234 1234 1234 1234"
+            maxlength="19"
+            required
+          >
+          <small id="accountNumberError" style="color: red; display: none;">Bank Account Number must be 16 digits</small>
+        </div>
+
+        <div class="form-control">
+          <label for="cbc">CBC</label>
+          <input type="text" id="cbc" name="cbc" value="<%= user.bankDetails.cbc %>" placeholder="123" required>
+        </div>
+
+        <div class="form-control">
+          <label for="secretKey">Secret Key</label>
+          <input type="password" id="secretKey" name="secretKey" required>
+        </div>
+
+        <div class="centered">
+          <button class="centered btn" type="submit">Submit Bank Details</button>
+        </div>
+      </div>
+    </form>
+  </main>
+  <%- include('../includes/end.ejs') %>
+
+  <script>
+    const accountNumberInput = document.getElementById('accountNumber');
+    const accountNumberError = document.getElementById('accountNumberError');
+
+    accountNumberInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, ''); // শুধুমাত্র সংখ্যা রাখা
+      
+      if (value.length > 16) {
+        value = value.slice(0, 16);
+      }
+      if (value.length > 0) {
+        e.target.value = value.match(/.{1,4}/g).join(' ');
+      } else {
+        e.target.value = '';
+      }
+
+      // এরর মেসেজ দেখানো/লুকানো
+      if (value.length !== 16) {
+        accountNumberError.style.display = 'block';
+      } else {
+        accountNumberError.style.display = 'none';
+      }
+    });
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const accountNumber = accountNumberInput.value.replace(/\s/g, '');
+      if (accountNumber.length !== 16) {
+        e.preventDefault();
+        accountNumberError.style.display = 'block';
+        accountNumberInput.focus();
+      }
+    });
+    document.getElementById('cbc').addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D+/g, ''); // Allow only numbers
+      e.target.value = value.slice(0, 3); // Limit to 3 characters
+    });
+  </script>
+</body>
