@@ -6,7 +6,11 @@ const orderSchema = new Schema({
   products: [
     {
       product: { type: Object, required: true },
-      quantity: { type: Number, required: true }
+      quantity: { type: Number, required: true },status: {
+        type: String,
+        default: 'pending',
+        enum: ['pending', 'delivered']
+      }
     }
   ],
   user: {
@@ -19,7 +23,8 @@ const orderSchema = new Schema({
       required: true,
       ref: 'User'
     }
-  }
+  },
+  
 });
 
 module.exports = mongoose.model('Order', orderSchema);

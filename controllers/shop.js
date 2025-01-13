@@ -6,6 +6,7 @@ const bcrypt=require('bcryptjs');
 const path=require('path');
 const PDFDocument =require('pdfkit');
 const stripe = require('stripe')('sk_test_51QYwWhBChbQGBbLewdCMlxNXl4kvSpsWdTjF4roHmTfqng0HbSrHmFxxPJqCTKrNGxTijEeXyUsH06qkPNISPWPH00s0s6aKph');
+//const PendingOrder=require('../models/pending-order');
 //const fileHelper=require('../util/file');
 exports.getProducts = (req, res, next) => {
   Product.find()//used for mongoose for fetching all products but can use fetch all for mongodb which I need to  implement .cursor() for fetching a item at a time
@@ -108,8 +109,7 @@ exports.postCart = (req, res, next) => {
             const referer = req.get('Referer');
             res.redirect(referer || '/cart');
           });
-     
-    })
+        })
     .catch(err => {
       console.log('Add to cart error:', err);
       res.redirect('/500');
@@ -190,6 +190,7 @@ exports.postOrder = (req, res, next) => {
                 userId: req.user,
               },
               products: products,
+              status: 'pending'
             });
 
             console.log(products);
@@ -197,24 +198,48 @@ exports.postOrder = (req, res, next) => {
             // Create a map to track owners' money updates
             const ownerUpdates = [];
             let money=0;
-            // Loop through each product in the cart
-            products.forEach(prod => {
-              const productOwnerId = prod.product.userId;
+            const ownerProductMap = {};
 
-              let moneyToAdd = prod.quantity * prod.product.price;
-                   money+=moneyToAdd;
-              // Find the product owner and update their money
+            // Group products by owner
+            products.forEach(prod => {
+              const productOwnerId = prod.product.userId.toString();
+              if (!ownerProductMap[productOwnerId]) {
+                ownerProductMap[productOwnerId] = [];
+              }
+              ownerProductMap[productOwnerId].push(prod);
+            });
+
+            // Loop through each owner and update their pending orders
+            Object.keys(ownerProductMap).forEach(ownerId => {
+              const ownerProducts = ownerProductMap[ownerId];
+              const moneyToAdd = ownerProducts.reduce((sum, prod) => sum + prod.quantity * prod.product.price, 0);
+
               ownerUpdates.push(
-                User.findById(productOwnerId)
+                User.findById(ownerId)
                   .then(owner => {
                     if (owner) {
-                      if (owner.money === undefined) {
-                        owner.money = 0; // Initialize money if it's undefined
+                      if (owner.pendingmoney === undefined) {
+                        owner.pendingmoney = 0; // Initialize money if it's undefined
                       }
-
-                      owner.money += moneyToAdd; // Add the calculated money to the owner's balance
+                      
+                      // Create pending order object with product details
+                      const pendingOrder = {
+                        orderId: order._id,
+                        products: ownerProducts.map(prod => ({
+                          title: prod.product.title,
+                          productId: prod.product._id,
+                          quantity: prod.quantity,
+                          price: prod.product.price
+                        })),
+                        status: 'pending'
+                      };
+                      
+                      // Add money and pending order
+                      owner.pendingmoney += moneyToAdd;
+                      owner.pendingOrders.push(pendingOrder);
+                      
                       console.log(`Updated owner ${owner.email}'s money: ${owner.money}`);
-                      return owner.save(); // Save the updated owner
+                      return owner.save();
                     } else {
                       throw new Error("Product owner not found");
                     }
@@ -225,9 +250,11 @@ exports.postOrder = (req, res, next) => {
             // After all the product owners are updated, save the order and user cart clearing
             Promise.all(ownerUpdates)
               .then(() => {
+                //console.log(order._id.toString());
                 return order.save();  // Save the order after updating the product owners
               })
               .then(() => {
+                console.log('the order is'+order);
                 return req.user.clearCart(); // Clear the user's cart
               })
               .then(() => {
@@ -303,4 +330,93 @@ exports.getInvoice=(req,res,next)=>{
 
   })
  
+};
+exports.getPendingOrders = (req, res, next) => {
+  const userId=req.user._id;
+  User.findById(userId).then(user=>{
+
+    
+    res.render('shop/pending-orders', {
+      path: '/pending-orders',
+      pageTitle: 'Pending Orders',
+      //orders: filteredOrders,
+
+      pendingOrders:user.pendingOrders,
+
+  });
+    })
+    .catch(err => console.log(err));
+};
+exports.markDelivered = (req, res, next) => {
+    const orderId = req.body.orderId;
+
+    // Find the order in the Order collection
+    Order.findOne({ _id: orderId, 'products.product.userId': req.user._id })
+        .then(order => {
+            if (!order) {
+                throw new Error('Order not found or unauthorized');
+            }
+
+            // Update the status of the products to 'delivered' in the Order collection
+            order.products.forEach(product => {
+                if (product.product.userId.toString() === req.user._id.toString()) {
+                    product.status = 'delivered';
+                }
+            });
+
+            return order.save();
+        })
+        .then(() => {
+            // Find the order in the User's pending orders
+            return User.findById(req.user._id);
+        })
+        .then(user => {
+            const orderIndex = user.pendingOrders.findIndex(order => order.orderId.toString() === orderId.toString());
+
+            if (orderIndex >= 0) {
+                const deliveredOrder = user.pendingOrders[orderIndex];
+                deliveredOrder.status = 'delivered';
+                console.log(deliveredOrder);
+                // Update owner's money
+                deliveredOrder.products.forEach(prod => {
+                    const productPrice = prod.quantity * prod.price;
+                    console.log(prod.price);
+                    if (!isNaN(productPrice)) {
+                        if (user.money === undefined) {
+                            user.money = 0;
+                        }
+                        //console.log(user);
+                        user.money += productPrice;
+                        user.pendingmoney -= productPrice;
+                    } else {
+                        console.error('Invalid product price:', prod.price);
+                    }
+                });
+
+                user.deliveredOrders.push(deliveredOrder);
+                user.pendingOrders.splice(orderIndex, 1);
+
+                return user.save();
+            } else {
+                throw new Error('Order not found in user pending orders');
+            }
+        })
+        .then(() => {
+            res.redirect('/delivered');
+        })
+        .catch(err => {
+            console.log(err);
+            res.redirect('/500');
+        });
+};
+exports.getDeliveredOrders = (req, res, next) => {
+  const userId=req.user._id;
+  User.findById(userId).then(user=>{
+    res.render('shop/delivered-order', {
+      path: '/delivered',
+      pageTitle: 'Delivered Orders',
+      deliveredOrders:user.deliveredOrders,
+    });
+  })
+  .catch(err => console.log(err));
 };

@@ -7,6 +7,10 @@
 
             <main>
                 <div class="money-earned">
+                    <h2>Pending Money</h2>
+                    <p class="total-amount">৳ <%= new Intl.NumberFormat('en-US').format(isNaN(user.pendingmoney) ? 0 : user.pendingmoney) %></p>
+                  </div>
+                <div class="money-earned">
                     <h2>Total Money Earned</h2>
                     <p class="total-amount">৳ <%= new Intl.NumberFormat('en-US').format(isNaN(user.money) ? 0 : user.money) %></p>
                   </div>
@@ -42,7 +46,12 @@
                                 </div>
                             </article>
                             <% } %>
+                          
                     </div>
+                    <div class="centered">
+                        <a href="/pending-order" class="btn centerd">Pending Orders</a>
+                        <a href="/delivered" class="btn centered">Delivered</a>
+                     </div> 
                     <% } else { %>
                         <h1>No Products Found!</h1>
                         <% } %>

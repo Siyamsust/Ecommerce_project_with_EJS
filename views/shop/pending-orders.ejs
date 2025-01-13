@@ -1,0 +1,39 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/orders.css">
+    
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main>
+            <% if (pendingOrders.length <= 0) { %>
+                <h1>No Pending Orders!</h1>
+            <% } else { %>
+                <ul class="orders">
+                    <% pendingOrders.forEach(pendingOrder => { %>
+                        <li class="orders__item">
+                            <h1>Order ID: <%= pendingOrder.orderId %></h1>
+                            <h3>Items to Supply:</h3>
+                            <ul class="orders__products">
+                                <% pendingOrder.products.forEach(product => { %>
+                                    <li class="orders__products-item">
+                                        <span class="status-button status-<%= pendingOrder.status %>">
+                                            <%= pendingOrder.status %>
+                                        </span>
+                                        <%= product.title %>
+                                        <br>
+                                        Quantity: <%= product.quantity %>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                            <form action="/pending-order" method="POST">
+                                <input type="hidden" name="orderId" value="<%= pendingOrder.orderId %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button type="submit" class="btn">Mark as Delivered</button>
+                            </form>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } %>
+        </main>
+        <%- include('../includes/end.ejs') %> 

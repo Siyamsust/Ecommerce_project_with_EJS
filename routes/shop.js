@@ -25,4 +25,7 @@ router.get('/checkout',isAuth,shopController.getCheckout);
 //router.get('/checkout',isAuth,shopController.getBcheck);
 router.get('/orders', isAuth, shopController.getOrders);
 router.get('/orders/:invoiceId', isAuth,shopController.getInvoice);
+router.get('/pending-order', isAuth, shopController.getPendingOrders);
+router.post('/pending-order', isAuth, shopController.markDelivered);
+router.get('/delivered', isAuth, shopController.getDeliveredOrders);
 module.exports = router;

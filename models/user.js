@@ -24,6 +24,7 @@ const userSchema = new Schema({
     required:true
   },
   money: Number,
+  pendingmoney:Number,
   resetToken: String,
   resetTokenExpiration: Date,
   cart: {
@@ -57,7 +58,79 @@ const userSchema = new Schema({
       type:String,
      
     }
-  }
+  },
+  pendingOrders:[{
+    orderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+    },
+    products: [{
+      title: {
+        type: String,
+
+      },
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+      quantity: {
+        type: Number,
+      },
+      price: {
+        type: Number,
+   
+      }
+  
+    }],
+    status: {
+      type: String,
+      default: 'pending',
+      enum: ['pending', 'delivered']
+    },
+    
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    
+
+  }],
+  deliveredOrders:[{
+    orderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+    },
+    products: [{
+      title: {
+        type: String,
+
+      },
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+      quantity: {
+        type: Number,
+      },
+      price: {
+        type: Number,
+        
+      }
+    }],
+    status: {
+      type: String,
+      default: 'pending',
+      enum: ['pending', 'delivered']
+    },
+    
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+   
+
+
+  }]
 });
 
 userSchema.methods.addToCart = function(product, quantity) {
