@@ -1,221 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review Your Order</title>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7fa;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hover Card Flip</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* styles.css */
+body {
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #9d8181;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+.wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-        .header {
-            background-color: #007bff;
-            padding: 20px;
-            text-align: center;
-        }
+.cols {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
 
-        .header h2 {
-            margin: 0;
-            color: #ffffff;
-        }
+.card {
+  width: 300px;
+  height: 400px;
+  perspective: 1000px;
+}
 
-        .cart__item-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+.card .front, .card .back {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  position: absolute;
+  backface-visibility: hidden;
+  transition: transform 0.6s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+}
 
-        .cart__item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
+.card .front {
+  background-size: cover;
+  background-position: center;
+}
 
-        .cart__item-img img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-right: 20px;
-        }
+.card .back {
+  background: #333;
+  transform: rotateY(180deg);
+}
 
-        .cart__item-info h1 {
-            font-size: 1.1em;
-            margin: 0;
-            color: #333;
-        }
+.card:hover .front {
+  transform: rotateY(180deg);
+}
 
-        .cart__item-info h2 {
-            font-size: 0.9em;
-            margin: 5px 0 0;
-            color: #555;
-        }
+.card:hover .back {
+  transform: rotateY(0deg);
+}
 
-        .profile-details {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #f9fafb;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .profile-item {
-            margin-bottom: 15px;
-        }
-
-        .profile-item label {
-            font-weight: bold;
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .profile-item p {
-            margin: 0;
-            color: #555;
-            font-size: 0.9em;
-        }
-
-        .total-section {
-            padding: 20px;
-            background-color: #f9fafb;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .total-section h2 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        .total-section p {
-            margin: 5px 0;
-            color: #555;
-            font-size: 0.9em;
-        }
-
-        .total-section hr {
-            border: none;
-            border-top: 1px solid #ddd;
-            margin: 10px 0;
-        }
-
-        .secret-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-sizing: border-box;
-            font-size: 0.9em;
-        }
-
-        .btn {
-            background-color: #007bff;
-            color: #ffffff;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            width: 100%;
-            text-align: center;
-            display: inline-block;
-            margin-top: 15px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <main>
-        <div class="container">
-            <div class="header">
-                <h2>Review your order</h2>
-            </div>
-            
-            <div style="display: flex; gap: 2rem; padding: 2rem;">
-                <!-- Left side: Order items -->
-                <div style="flex: 2;">
-                    <ul class="cart__item-list">
-                        <% products.forEach(p => { %>
-                            <li class="cart__item">
-                                <div class="cart__item-img">
-                                    <img src="/<%= p.productId.imageUrl %>" alt="<%= p.productId.title %>">
-                                </div>
-                                <div class="cart__item-info">
-                                    <h1><%= p.productId.title %></h1>
-                                    <h2>Quantity: <%= p.quantity %></h2>
-                                </div>
-                            </li>
-                        <% }) %>
-                    </ul>
-
-                    <!-- Bank Details Section -->
-                    <div class="profile-details">
-                        <h3>Bank Details</h3>
-                        <div class="profile-item">
-                            <label for="address">Address</label>
-                            <p><%= bankDetails.address %></p>
-                        </div>
-                        <div class="profile-item">
-                            <label for="accountNumber">Account Number</label>
-                            <p><%= bankDetails.accountNumber %></p>
-                        </div>
-                        <div class="profile-item">
-                            <label for="cbc">CBC</label>
-                            <p><%= bankDetails.cbc %></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right side: Order Summary -->
-                <div style="flex: 1;">
-                    <div class="total-section">
-                        <h2>Order Summary</h2>
-                        <div style="margin: 1rem 0;">
-                            <p>Items: ৳ <%= new Intl.NumberFormat('en-US').format(totalSum) %></p>
-                            <p>Shipping & handling: ৳ 0.00</p>
-                            <hr>
-                            <p><strong>Total: ৳ <%= new Intl.NumberFormat('en-US').format(totalSum) %></strong></p>
-                        </div>
-
-                        <form action="/create-order" method="POST">
-                            <div class="profile-item">
-                                <label for="secretKey">Secret Key</label>
-                                <input 
-                                    type="password" 
-                                    id="secretKey" 
-                                    name="secretKey" 
-                                    class="secret-input" 
-                                    required
-                                    placeholder="Enter your secret key">
-                            </div>
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <button class="btn" type="submit" id="checkout-button">Place Order</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+  <div class="wrapper">
+    <div class="cols">
+      <!-- First Card -->
+      <div class="card">
+        <div class="front" style="background-image: url('data:image/jpeg;base64,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');">
+          <h2>INDIA</h2>
+          <p>Taj Mahal</p>
         </div>
-    </main>
+        <div class="back">
+          <h2>INDIA</h2>
+          <p>Explore the beauty of Taj Mahal in India.</p>
+        </div>
+      </div>
+
+      <!-- Second Card -->
+      <div class="card">
+        <div class="front" style="background-image: url('dubai.jpg');">
+          <h2>DUBAI</h2>
+          <p>Burj Khalifa</p>
+        </div>
+        <div class="back">
+          <h2>DUBAI</h2>
+          <p>Discover the stunning Burj Khalifa in Dubai.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
