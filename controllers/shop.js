@@ -145,6 +145,7 @@ exports.getCheckout = (req, res, next) => {
         products: products,
         totalSum:total,
         bankDetails:bankDetails,
+        errorMessage:''
         // accountName:User.name,
         // acountNumber:User.bankDetails.accountNumber,
         // cbc:User.bankDetails.cbc
@@ -265,8 +266,29 @@ exports.postOrder = (req, res, next) => {
                 res.redirect('/500'); // Or handle the error appropriately
               });
           }
+          else{
+            const products = user.cart.items;
+            let total = 0;
+            products.forEach(p => {
+              total += p.quantity * p.productId.price;
+            });
+
+            res.render('shop/checkout', {
+              path: '/checkout',
+              pageTitle: 'Checkout',
+              products: products,
+              totalSum: total,
+              bankDetails: user.bankDetails,
+              errorMessage: 'Invalid secret key. Please try again.',
+              // isAuthenticated: req.session.isLoggedIn,
+              // csrfToken: req.csrfToken()
+            });
+          }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          
+          console.log(err);
+    });
     })
     .catch(err => console.log(err));
 };

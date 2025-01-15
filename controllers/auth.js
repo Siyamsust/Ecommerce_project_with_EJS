@@ -12,7 +12,7 @@ const transEmail = new sibApiV3Sdk.TransactionalEmailsApi();
 const {validationResult}=require('express-validator');
 const sender ={
   name:'Siyam',
-  email:'ahamedsiyam43@gmail.com'
+  email:'ahsiy083@gmail.com'
 }
 
 exports.getLogin = (req, res, next) => {

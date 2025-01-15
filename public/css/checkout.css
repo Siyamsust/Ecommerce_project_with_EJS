@@ -200,6 +200,18 @@ main {
     transform: translateY(-1px);
     background: linear-gradient(135deg, #218838, #1e7e34);
 }
+.user-message {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.user-message--error {
+    background-color: #fff8f8;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
 
 @media (max-width: 768px) {
     body {

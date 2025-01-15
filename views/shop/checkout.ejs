@@ -9,6 +9,9 @@
             <div class="header">
                 <h2>Review your order</h2>
             </div>
+            <% if (errorMessage) { %>
+                <div class="user-message user-message--error"><%= errorMessage %></div>
+            <% } %>
             
             <div class="content-wrapper">
                 <!-- Left Side: Order Details -->
