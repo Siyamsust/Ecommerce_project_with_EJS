@@ -37,6 +37,8 @@ exports.getProduct = (req, res, next) => {
   
   Product.findById(prodId)
     .then(product => {
+      const totalCartItems = req.user ? req.user.cart.items : [];
+      
       return req.session.save(err => {
         if (err) {
           console.log('Session save error:', err);
@@ -45,7 +47,8 @@ exports.getProduct = (req, res, next) => {
           product: product,
           pageTitle: product.title,
           path: '/products',
-          addedtoCart: addedtoCart
+          addedtoCart: addedtoCart,
+          totalCartItems: totalCartItems
         });
       });
     })
@@ -59,12 +62,15 @@ exports.getIndex = (req, res, next) => {
   Product.find()
     .then(products => {
       const addedtoCart = req.session.addedtoCart || null;
-      req.session.addedtoCart = null; 
+      req.session.addedtoCart = null;
+      const totalCartItems = req.user ? req.user.cart.items : [];
+      
       res.render('shop/index', {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
         addedtoCart: addedtoCart,
+        totalCartItems: totalCartItems
       });
     })
     .catch(err => {
@@ -78,13 +84,14 @@ exports.getCart = (req, res, next) => {
     .populate('cart.items.productId')
     .then(user => {
       const products = user.cart.items;
+      const totalCartItems = req.user ? req.user.cart.items : [];
+      
       res.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: products,
-        addedtoCart:'Added to Cart',
-        //isAuthenticated: req.session.isLoggedIn,
-        // csrfToken:req.csrfToken()
+        addedtoCart: 'Added to Cart',
+        totalCartItems: totalCartItems
       });
     })
     .catch(err => console.log(err));

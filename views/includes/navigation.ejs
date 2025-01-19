@@ -6,12 +6,26 @@
             <li class="main-header__item">
                 <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
             </li>
-            <li class="main-header__item">
-                <a class="<%= path === '/products' ? 'active' : '' %>" href="/products">Products</a>
-            </li>
+            
             <% if (isAuthenticated) { %>
                 <li class="main-header__item">
-                    <a class="<%= path === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
+                    <a class="<%= path === '/cart' ? 'active' : '' %>" href="/cart" style="position: relative;">
+                        <img style="width: 45px; height: 30px; vertical-align: middle;" src="https://supersimple.dev/projects/amazon/images/icons/cart-icon.png">
+                        
+                        <span class="badge" style=" background-color: #ff4d4d; color: white;
+                        border-radius: 50%;
+                        font-size: 0.8rem; font-weight: bold;
+                        transform: translate(0, 0);
+                        padding: 2px 6px;
+                        position: absolute;
+                        top: -10px;
+                        left: 18px;
+                        
+                        max-width: 18px;
+                        text-align: center;">
+                            <%= totalCartItems ? totalCartItems.reduce((total, item) => total + item.quantity, 0) : 0 %>
+                        </span>
+                    </a>
                 </li>
                 <li class="main-header__item">
                     <a class="<%= path === '/orders' ? 'active' : '' %>" href="/orders">Orders</a>
@@ -54,9 +68,7 @@
         <li class="mobile-nav__item">
             <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
         </li>
-        <li class="mobile-nav__item">
-            <a class="<%= path === '/products' ? 'active' : '' %>" href="/products">Products</a>
-        </li>
+       
         <% if (isAuthenticated) { %>
             <li class="mobile-nav__item">
                 <a class="<%= path === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
