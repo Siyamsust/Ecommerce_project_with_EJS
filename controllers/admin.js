@@ -20,6 +20,7 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 exports.getProfile=(req,res,next)=>{
+  const totalCartItems = req.user ? req.user.cart.items : [];
   const useId=req.user._id;
   console.log('something');
   console.log('hi'+useId);  
@@ -246,6 +247,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   const user=req.user;
   Product.find({ userId: req.user._id })
     // .select('title price -_id')
@@ -260,6 +262,7 @@ exports.getProducts = (req, res, next) => {
         path: '/admin/products',
         user:user,
         addedtoCart:addedtoCart,
+        totalCartItems:totalCartItems
       });
     })
     .catch(err => {
