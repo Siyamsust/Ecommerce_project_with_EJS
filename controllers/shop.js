@@ -14,6 +14,7 @@ exports.getProducts = (req, res, next) => {
       const addedtoCart = req.session.addedtoCart || null;
       req.session.addedtoCart = null; 
       console.log(products);
+      const totalCartItems = req.user ? req.user.cart.items : [];
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
@@ -21,6 +22,7 @@ exports.getProducts = (req, res, next) => {
         addedtoCart: addedtoCart,
         //isAuthenticated: req.session.isLoggedIn,
        // csrfToken:req.csrfToken()
+        totalCartItems: totalCartItems
       });
     })
     .catch(err => {
@@ -144,15 +146,19 @@ exports.getCheckout = (req, res, next) => {
         total+=p.quantity*p.productId.price;
       });
       //const userId=req.session.user._id
-       const bankDetails =user.bankDetails;
-       console.log(bankDetails);
+      const bankDetails =user.bankDetails;
+      console.log(bankDetails);
+
+      const totalCartItems = req.user ? req.user.cart.items : [];
+      
       res.render('shop/checkout', {
         path: '/checkout',
         pageTitle: 'Checkout',
         products: products,
         totalSum:total,
         bankDetails:bankDetails,
-        errorMessage:''
+        errorMessage:'',
+        totalCartItems: totalCartItems
         // accountName:User.name,
         // acountNumber:User.bankDetails.accountNumber,
         // cbc:User.bankDetails.cbc
@@ -178,6 +184,7 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   req.user
     .populate('cart.items.productId')
     .then(user => {
@@ -301,12 +308,14 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders: orders,
+        totalCartItems: totalCartItems
        //  isAuthenticated: req.session.isLoggedIn,
         // csrfToken:req.csrfToken()
       });
@@ -361,6 +370,7 @@ exports.getInvoice=(req,res,next)=>{
  
 };
 exports.getPendingOrders = (req, res, next) => {
+     const totalCartItems = req.user ? req.user.cart.items : [];
   const userId=req.user._id;
   User.findById(userId).then(user=>{
 
@@ -369,7 +379,7 @@ exports.getPendingOrders = (req, res, next) => {
       path: '/pending-orders',
       pageTitle: 'Pending Orders',
       //orders: filteredOrders,
-
+      totalCartItems: totalCartItems,
       pendingOrders:user.pendingOrders,
 
   });
@@ -377,6 +387,7 @@ exports.getPendingOrders = (req, res, next) => {
     .catch(err => console.log(err));
 };
 exports.markDelivered = (req, res, next) => {
+    
     const orderId = req.body.orderId;
 
     // Find the order in the Order collection
@@ -439,12 +450,14 @@ exports.markDelivered = (req, res, next) => {
         });
 };
 exports.getDeliveredOrders = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   const userId=req.user._id;
   User.findById(userId).then(user=>{
     res.render('shop/delivered-order', {
       path: '/delivered',
       pageTitle: 'Delivered Orders',
       deliveredOrders:user.deliveredOrders,
+      totalCartItems: totalCartItems
     });
   })
   .catch(err => console.log(err));

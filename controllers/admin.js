@@ -14,7 +14,8 @@ exports.getAddProduct = (req, res, next) => {
     hasError: false,
     errorMessage: null,
     addedtoCart:null,
-    validationErrors: []
+    validationErrors: [],
+    totalCartItems: totalCartItems,
   });
 };
 exports.getProfile=(req,res,next)=>{
@@ -30,6 +31,7 @@ exports.getProfile=(req,res,next)=>{
     csrfToken: req.csrfToken(),
     hasError: false,
     errorMessage: null,
+    totalCartItems:totalCartItems,
     //addedtoCart:null,
     //validationErrors: []
   })).catch(err=>{
