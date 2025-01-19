@@ -184,7 +184,7 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  const totalCartItems = req.user ? req.user.cart.items : [];
+  
   req.user
     .populate('cart.items.productId')
     .then(user => {

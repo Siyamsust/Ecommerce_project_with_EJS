@@ -7,6 +7,7 @@ const Product = require('../models/product');
 const { file } = require('pdfkit');
 
 exports.getAddProduct = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
@@ -163,6 +164,7 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getEditProduct = (req, res, next) => {
+  const totalCartItems = req.user ? req.user.cart.items : [];
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect('/');
@@ -181,6 +183,7 @@ exports.getEditProduct = (req, res, next) => {
         hasError: false,
         errorMessage: null,
         addedtoCart:null,
+        totalCartItems:totalCartItems,
         validationErrors: []
       });
     })
