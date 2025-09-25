@@ -135,4 +135,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For support, email your queries to siyamsust@gmail.com or open an issue in the repository.
+For support, email your queries to ahamedsiyam43@gmail.com or open an issue in the repository.
